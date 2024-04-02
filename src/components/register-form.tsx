@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
@@ -14,8 +14,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { toast } from "sonner";
+import { registerUser } from "@/services/auth";
 
-const registerFormSchema = z
+export const registerFormSchema = z
   .object({
     firstname: z
       .string()
@@ -41,6 +43,8 @@ const registerFormSchema = z
   });
 
 function RegisterForm() {
+  const [isPending, startTransition] = useTransition();
+
   const form = useForm<z.infer<typeof registerFormSchema>>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
@@ -52,7 +56,13 @@ function RegisterForm() {
   });
 
   function onSubmit(values: z.infer<typeof registerFormSchema>) {
-    console.log(values);
+    startTransition(async () => {
+      try {
+        registerUser(values);
+      } catch (error) {
+        toast("Cannot register");
+      }
+    });
   }
 
   return (
