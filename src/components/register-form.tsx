@@ -140,8 +140,11 @@ function RegisterForm() {
             )}
           />
           <Button className="w-full mt-5" type="submit">
-            Submit
+            Register
           </Button>
+          <span className="cursor-pointer" onClick={() => router.push("/")}>
+            Login
+          </span>
         </form>
       </Form>
     </div>

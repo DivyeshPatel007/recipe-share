@@ -25,6 +25,11 @@ const registerFormSchema = z
             )
             .max(50),
     })
+
+const loginFormSchema = z.object({
+    email: z.string().email(),
+    password: z.string(),
+});
 const SECRET = process.env.TOKEN_SECRET || "this is an secret";
 
 export async function registerUser(formData: z.infer<typeof registerFormSchema>) {
@@ -70,13 +75,40 @@ export async function registerUser(formData: z.infer<typeof registerFormSchema>)
         console.log(error)
     }
 
+}
+
+export async function loginUser(formData: z.infer<typeof loginFormSchema>) {
+    try {
+        const validatedFields = loginFormSchema.safeParse(formData);
+        if (!validatedFields.success) {
+            console.log(validatedFields.success)
+            return { error: "Invalid fields!" };
+        }
+
+        const { email, password } = validatedFields.data;
+        const user = await db.user.findUnique({
+            where: {
+                email: email
+            }
+        })
+
+        if (!user) {
+            // return res.status(400).json({ message: "username already exists." })
+            console.log("Incorrect Email or Password");
+            return { error: "Incorrect Email or Password" };
+        };
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            return { error: "Incorrect Username or Password" }
+        }
+        const { firstname, id, email: sanitizeEmail } = user;
+        const token = jwt.sign({ userId: id, email: sanitizeEmail }, SECRET, { expiresIn: '1h' });
+
+        return { accessToken: token, firstname, id, email: sanitizeEmail }
 
 
 
+    } catch (error) {
 
-    // const res = await db.user.create({
-    //     data: data
-    // })
-    // console.log(res);
-
+    }
 }
