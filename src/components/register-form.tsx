@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/form";
 import { toast } from "sonner";
 import { registerUser } from "@/services/auth";
+import { cookies } from "next/headers";
 
 export const registerFormSchema = z
   .object({
@@ -58,11 +59,14 @@ function RegisterForm() {
   function onSubmit(values: z.infer<typeof registerFormSchema>) {
     startTransition(async () => {
       try {
-        registerUser(values);
+        const { confirmPassword, ...data } = values;
+        const response = await registerUser(data);
+        console.log(response);
       } catch (error) {
         toast("Cannot register");
       }
     });
+    form.reset();
   }
 
   return (
