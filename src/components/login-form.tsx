@@ -1,24 +1,20 @@
 "use client";
-import React, { useTransition } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { toast } from "sonner";
-import { loginUser, registerUser } from "@/services/auth";
-import { cookies } from "next/headers";
-import { redirect } from "next/dist/server/api-utils";
+import { Input } from "@/components/ui/input";
+import { loginUser } from "@/services/auth";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 
 export const loginFormSchema = z.object({
   email: z.string().email(),

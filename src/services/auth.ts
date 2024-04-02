@@ -1,8 +1,8 @@
 'use server'
-// import { registerFormSchema } from '@/components/register-form'
 import { db } from '@/lib/db';
 import bcrypt from 'bcryptjs'
 import jwt from "jsonwebtoken"
+import { cookies } from 'next/headers';
 
 import { z } from 'zod'
 
@@ -30,10 +30,9 @@ const loginFormSchema = z.object({
     email: z.string().email(),
     password: z.string(),
 });
-const SECRET = process.env.TOKEN_SECRET || "this is an secret";
+const SECRET = process.env.TOKEN_SECRET;
 
 export async function registerUser(formData: z.infer<typeof registerFormSchema>) {
-
     try {
         const validatedFields = registerFormSchema.safeParse(formData);
         if (!validatedFields.success) {
@@ -48,7 +47,6 @@ export async function registerUser(formData: z.infer<typeof registerFormSchema>)
             }
         })
         if (emailCheck) {
-            // return res.status(400).json({ message: "username already exists." })
             console.log("username already exists");
             return { error: "Username already exists" };
         };
@@ -62,12 +60,10 @@ export async function registerUser(formData: z.infer<typeof registerFormSchema>)
                 password: hashedPassword
             }
         });
-        const token = jwt.sign({ userId: newUser.id, email: newUser.email }, SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ userId: newUser.id, email: newUser.email }, SECRET!, { expiresIn: '1h' });
 
         console.log("User registered successfully");
-        // return token;
         console.log("JWT Token", token)
-
         return { token }
 
 
@@ -102,7 +98,7 @@ export async function loginUser(formData: z.infer<typeof loginFormSchema>) {
             return { error: "Incorrect Username or Password" }
         }
         const { firstname, id, email: sanitizeEmail } = user;
-        const token = jwt.sign({ userId: id, email: sanitizeEmail }, SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ userId: id, email: sanitizeEmail }, SECRET!, { expiresIn: '1h' });
 
         return { accessToken: token, firstname, id, email: sanitizeEmail }
 
