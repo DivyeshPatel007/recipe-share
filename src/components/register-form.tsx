@@ -17,6 +17,8 @@ import {
 import { toast } from "sonner";
 import { registerUser } from "@/services/auth";
 import { cookies } from "next/headers";
+import { redirect } from "next/dist/server/api-utils";
+import { useRouter } from "next/navigation";
 
 export const registerFormSchema = z
   .object({
@@ -44,6 +46,7 @@ export const registerFormSchema = z
   });
 
 function RegisterForm() {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<z.infer<typeof registerFormSchema>>({
@@ -62,6 +65,13 @@ function RegisterForm() {
         const { confirmPassword, ...data } = values;
         const response = await registerUser(data);
         console.log(response);
+        if (response?.error) {
+          toast(response.error);
+        }
+        if (response?.token) {
+          localStorage.setItem("accessToken", response.token);
+          router.push("/");
+        }
       } catch (error) {
         toast("Cannot register");
       }
